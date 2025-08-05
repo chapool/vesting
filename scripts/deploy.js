@@ -102,7 +102,9 @@ async function main() {
       5 * 365 * 24 * 60 * 60,             // duration (5 years)
       1,                                   // slice period (1 second)
       true,                                // revocable
-      MINING_POOL_ALLOCATION               // amount
+      MINING_POOL_ALLOCATION,              // amount
+      0,                                   // category (MINING = 0)
+      0                                    // vestingType (LINEAR = 0)
     );
     console.log("✅ MiningPool vesting schedule created with ID:", miningPoolVestingId);
 

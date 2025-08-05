@@ -63,6 +63,18 @@ module.exports = {
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       gasPrice: "auto",
     },
+    hashkeyTestnet: {
+      url: "https://testnet.hsk.xyz",
+      chainId: 133,
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      gasPrice: "auto",
+    },
+    hashkeyMainnet: {
+      url: "https://mainnet.hsk.xyz",
+      chainId: 177,
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      gasPrice: "auto",
+    },
   },
   etherscan: {
     apiKey: {
