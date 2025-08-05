@@ -56,16 +56,16 @@ contract MiningPool is Initializable, OwnableUpgradeable, UUPSUpgradeable, Reent
     
     // 冷却期机制
     mapping(address => uint256) public lastRequestTime;  // 用户最后请求时间
-    uint256 public requestCooldown = DEFAULT_REQUEST_COOLDOWN;           // 请求冷却期
+    uint256 public requestCooldown;           // 请求冷却期
     
     // 每日限额机制
     mapping(address => mapping(uint256 => uint256)) public dailyUserWithdrawn;  // 用户每日已提现
     mapping(uint256 => uint256) public dailyGlobalWithdrawn;                   // 全局每日已提现
-    uint256 public dailyUserLimit = DEFAULT_DAILY_USER_LIMIT;                          // 用户每日限额
-    uint256 public dailyGlobalLimit = DEFAULT_DAILY_GLOBAL_LIMIT;                     // 全局每日限额
+    uint256 public dailyUserLimit;                          // 用户每日限额
+    uint256 public dailyGlobalLimit;                     // 全局每日限额
     
     // 请求过期时间
-    uint256 public requestExpiryTime = DEFAULT_REQUEST_EXPIRY;
+    uint256 public requestExpiryTime;
     
     // 提款申请存储
     mapping(uint256 => WithdrawalRequest) public withdrawalRequests;
@@ -140,6 +140,12 @@ contract MiningPool is Initializable, OwnableUpgradeable, UUPSUpgradeable, Reent
         // 设置默认最小和最大提现金额
         minWithdrawAmount = DEFAULT_MIN_WITHDRAW; // 最小1个代币
         maxWithdrawAmount = DEFAULT_MAX_WITHDRAW; // 最大100万代币
+        
+        // 初始化时间和限额相关参数
+        requestCooldown = DEFAULT_REQUEST_COOLDOWN;
+        dailyUserLimit = DEFAULT_DAILY_USER_LIMIT;
+        dailyGlobalLimit = DEFAULT_DAILY_GLOBAL_LIMIT;
+        requestExpiryTime = DEFAULT_REQUEST_EXPIRY;
         
         // 初始化ID管理器
         idManager.nextOnChainId = 1;
@@ -427,8 +433,8 @@ contract MiningPool is Initializable, OwnableUpgradeable, UUPSUpgradeable, Reent
         uint256 releasableAmount = _vestingContract.computeReleasableAmount(_miningVestingScheduleId);
         require(totalAmount <= releasableAmount, "MiningPool: insufficient releasable amount from vesting");
         
-        // 从 Vesting 合约中释放代币到 MiningPool 合约
-        _vestingContract.releaseForBeneficiary(_miningVestingScheduleId, totalAmount);
+        // MiningPool作为受益人，直接调用release释放到自己账户
+        _vestingContract.release(_miningVestingScheduleId, totalAmount);
         
         // 批量转账并更新请求状态
         for (uint256 i = 0; i < requestIds.length; i++) {
@@ -462,8 +468,8 @@ contract MiningPool is Initializable, OwnableUpgradeable, UUPSUpgradeable, Reent
         uint256 releasableAmount = _vestingContract.computeReleasableAmount(_miningVestingScheduleId);
         require(amount <= releasableAmount, "MiningPool: insufficient releasable amount");
         
-        // 从 Vesting 释放到 MiningPool
-        _vestingContract.releaseForBeneficiary(_miningVestingScheduleId, amount);
+        // MiningPool作为受益人，直接调用release释放到自己账户
+        _vestingContract.release(_miningVestingScheduleId, amount);
         
         // 转给指定地址
         _token.safeTransfer(to, amount);
@@ -744,9 +750,8 @@ contract MiningPool is Initializable, OwnableUpgradeable, UUPSUpgradeable, Reent
         WithdrawalRequest storage request = withdrawalRequests[requestId];
         require(request.status == WithdrawalStatus.PENDING, "MiningPool: request not pending");
         
-        // 从 Vesting 合约中释放代币到 MiningPool 合约
-        // 注意：MiningPool 应该是 Vesting 计划的受益人
-        _vestingContract.releaseForBeneficiary(_miningVestingScheduleId, request.amount);
+        // MiningPool作为受益人，直接调用release释放到自己账户
+        _vestingContract.release(_miningVestingScheduleId, request.amount);
         
         // 将代币转给实际的申请用户
         _token.safeTransfer(request.beneficiary, request.amount);
