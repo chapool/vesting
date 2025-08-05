@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.30;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import "./interfaces/IHZToken.sol";
 import "./Constants.sol";
@@ -21,6 +22,7 @@ contract HZToken is
     ERC20BurnableUpgradeable, 
     ERC20PausableUpgradeable, 
     OwnableUpgradeable,
+    UUPSUpgradeable,
     ReentrancyGuardUpgradeable,
     Constants,
     IHZToken
@@ -164,6 +166,13 @@ contract HZToken is
     function mint(address to, uint256 amount) external onlyOwner {
         require(totalSupply() + amount <= TOTAL_SUPPLY, "HZ: exceeds max supply");
         _mint(to, amount);
+    }
+
+    /**
+     * @dev 授权升级函数，只有owner可以升级合约
+     */
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {
+        // 只有owner可以升级合约
     }
 
     /**

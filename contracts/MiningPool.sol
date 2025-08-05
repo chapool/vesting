@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.30;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./interfaces/IMiningPool.sol";
@@ -15,7 +16,7 @@ import "./interfaces/IVesting.sol";
  * @dev MiningPool 合约管理 HZ Token 的挖矿奖励分发，采用分级授权机制
  * 支持不同额度的提币请求通过不同层级的审批流程
  */
-contract MiningPool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, Constants, IMiningPool {
+contract MiningPool is Initializable, OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeable, Constants, IMiningPool {
     using SafeERC20 for IERC20;
 
     // ==================== 状态变量 ====================
@@ -596,26 +597,6 @@ contract MiningPool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrade
         return count;
     }
 
-    /**
-     * @dev 获取代币合约地址
-     */
-    function getToken() external view returns (address) {
-        return address(_token);
-    }
-    
-    /**
-     * @dev 获取 Vesting 合约地址
-     */
-    function getVestingContract() external view returns (address) {
-        return address(_vestingContract);
-    }
-    
-    /**
-     * @dev 获取 MiningPool 在 Vesting 中的计划ID
-     */
-    function getMiningVestingScheduleId() external view returns (bytes32) {
-        return _miningVestingScheduleId;
-    }
     
     /**
      * @dev 获取 Vesting 计划的详细信息
@@ -824,5 +805,12 @@ contract MiningPool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrade
      */
     function version() external pure returns (string memory) {
         return "2.0.0";
+    }
+
+    /**
+     * @dev 授权升级函数，只有owner可以升级合约
+     */
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {
+        // 只有owner可以升级合约
     }
 }

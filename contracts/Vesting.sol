@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.30;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./interfaces/IVesting.sol";
@@ -15,7 +16,7 @@ import "./Constants.sol";
  * @dev Vesting 合约是 HZ Token 生态系统中的核心分配合约
  * 负责管理所有代币的时间锁定和释放机制，支持多种释放策略
  */
-contract Vesting is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, PausableUpgradeable, Constants, IVesting {
+contract Vesting is Initializable, OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeable, PausableUpgradeable, Constants, IVesting {
     using SafeERC20 for IERC20;
 
     // ==================== 状态变量 ====================
@@ -271,7 +272,7 @@ contract Vesting is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeabl
      * @dev 根据索引获取受益人的计划ID
      */
     function getVestingIdAtIndex(address beneficiary, uint256 index)
-        external view returns (bytes32) {
+        external pure returns (bytes32) {
         return computeVestingScheduleIdForAddressAndIndex(beneficiary, index);
     }
 
@@ -428,5 +429,12 @@ contract Vesting is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeabl
      */
     function version() external pure returns (string memory) {
         return "2.0.0";
+    }
+
+    /**
+     * @dev 授权升级函数，只有owner可以升级合约
+     */
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {
+        // 只有owner可以升级合约
     }
 }
