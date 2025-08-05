@@ -358,7 +358,7 @@ contract Vesting is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeabl
     }
     
     /**
-     * @dev 线性释放计算
+     * @dev 线性释放计算（基于slicePeriodSeconds的离散释放）
      */
     function _computeLinearRelease(VestingSchedule memory schedule, uint256 currentTime) 
         private pure returns (uint256) {

@@ -414,4 +414,22 @@ interface IMiningPool {
      * @param cleanedCount 清理数量
      */
     event ExpiredRequestsCleaned(address indexed cleaner, uint256 cleanedCount);
+
+    /**
+     * @dev 代币合约更新事件
+     * @param token 新的代币合约地址
+     */
+    event TokenUpdated(address indexed token);
+
+    /**
+     * @dev Vesting合约更新事件
+     * @param vestingContract 新的Vesting合约地址
+     */
+    event VestingContractUpdated(address indexed vestingContract);
+
+    /**
+     * @dev 挖矿Vesting计划ID更新事件
+     * @param scheduleId 新的计划ID
+     */
+    event MiningVestingScheduleIdUpdated(bytes32 indexed scheduleId);
 }

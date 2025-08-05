@@ -84,31 +84,53 @@ contract MiningPool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrade
     // 版本控制（用于可升级合约）
     uint256[50] private __gap;
 
+    // ==================== 修饰符 ====================
+    
+    /**
+     * @dev 确保代币合约已设置
+     */
+    modifier onlyWhenTokenSet() {
+        require(address(_token) != address(0), "MiningPool: token not set");
+        _;
+    }
+
+    /**
+     * @dev 确保Vesting合约已设置
+     */
+    modifier onlyWhenVestingSet() {
+        require(address(_vestingContract) != address(0), "MiningPool: vesting contract not set");
+        _;
+    }
+
+    /**
+     * @dev 确保挖矿Vesting计划ID已设置
+     */
+    modifier onlyWhenScheduleIdSet() {
+        require(_miningVestingScheduleId != bytes32(0), "MiningPool: mining vesting schedule ID not set");
+        _;
+    }
+
+    /**
+     * @dev 确保所有关键组件已设置
+     */
+    modifier onlyWhenFullyConfigured() {
+        require(address(_token) != address(0), "MiningPool: token not set");
+        require(address(_vestingContract) != address(0), "MiningPool: vesting contract not set");
+        require(_miningVestingScheduleId != bytes32(0), "MiningPool: mining vesting schedule ID not set");
+        _;
+    }
+
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
     }
 
     /**
-     * @dev 初始化函数
-     * @param token_ ERC20代币合约地址
-     * @param vestingContract_ Vesting合约地址
-     * @param miningVestingScheduleId_ MiningPool在Vesting中的计划ID
+     * @dev 初始化函数 - 简化版本，关键参数可后续设置
      */
-    function initialize(
-        address token_,
-        address vestingContract_,
-        bytes32 miningVestingScheduleId_
-    ) public initializer {
-        require(token_ != address(0), "MiningPool: token address cannot be zero");
-        require(vestingContract_ != address(0), "MiningPool: vesting address cannot be zero");
-        
+    function initialize() public initializer {
         __Ownable_init(_msgSender());
         __ReentrancyGuard_init();
-        
-        _token = IERC20(token_);
-        _vestingContract = IVesting(vestingContract_);
-        _miningVestingScheduleId = miningVestingScheduleId_;
         
         // 使用Constants中的默认阈值
         smallAmountThreshold = MINING_POOL_SMALL_THRESHOLD;
@@ -124,6 +146,53 @@ contract MiningPool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrade
     }
 
     // ==================== 管理接口实现 ====================
+
+    /**
+     * @dev 设置代币合约地址
+     */
+    function setToken(address token_) external onlyOwner {
+        require(token_ != address(0), "MiningPool: token address cannot be zero");
+        _token = IERC20(token_);
+        emit TokenUpdated(token_);
+    }
+
+    /**
+     * @dev 设置Vesting合约地址
+     */
+    function setVestingContract(address vestingContract_) external onlyOwner {
+        require(vestingContract_ != address(0), "MiningPool: vesting address cannot be zero");
+        _vestingContract = IVesting(vestingContract_);
+        emit VestingContractUpdated(vestingContract_);
+    }
+
+    /**
+     * @dev 设置挖矿Vesting计划ID
+     */
+    function setMiningVestingScheduleId(bytes32 miningVestingScheduleId_) external onlyOwner {
+        _miningVestingScheduleId = miningVestingScheduleId_;
+        emit MiningVestingScheduleIdUpdated(miningVestingScheduleId_);
+    }
+
+    /**
+     * @dev 获取代币合约地址
+     */
+    function getToken() external view returns (address) {
+        return address(_token);
+    }
+
+    /**
+     * @dev 获取Vesting合约地址
+     */
+    function getVestingContract() external view returns (address) {
+        return address(_vestingContract);
+    }
+
+    /**
+     * @dev 获取挖矿Vesting计划ID
+     */
+    function getMiningVestingScheduleId() external view returns (bytes32) {
+        return _miningVestingScheduleId;
+    }
 
     /**
      * @dev 设置审批阈值
@@ -335,7 +404,7 @@ contract MiningPool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrade
     /**
      * @dev 批量转账小额提现（仅限链下审核人）
      */
-    function batchSmallTransfer(uint256[] calldata requestIds) external nonReentrant {
+    function batchSmallTransfer(uint256[] calldata requestIds) external nonReentrant onlyWhenFullyConfigured {
         require(offChainAuditors[_msgSender()], "MiningPool: not authorized off-chain auditor");
         require(requestIds.length > 0, "MiningPool: empty request ids");
         
@@ -385,7 +454,7 @@ contract MiningPool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrade
     /**
      * @dev 紧急提款功能（从 Vesting 释放）
      */
-    function emergencyWithdraw(address to, uint256 amount) external onlyOwner nonReentrant {
+    function emergencyWithdraw(address to, uint256 amount) external onlyOwner nonReentrant onlyWhenFullyConfigured {
         require(to != address(0), "MiningPool: invalid recipient");
         
         // 检查 Vesting 中的可释放金额
@@ -409,7 +478,7 @@ contract MiningPool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrade
         string calldata reason, 
         uint256 offChainRecordId,
         uint256 nonce
-    ) external nonReentrant returns (uint256) {
+    ) external nonReentrant onlyWhenFullyConfigured returns (uint256) {
         address user = _msgSender();
         
         // 冷却期检查
@@ -496,7 +565,7 @@ contract MiningPool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrade
     /**
      * @dev 获取池子余额（从 Vesting 合约中的可释放金额）
      */
-    function getPoolBalance() external view returns (uint256) {
+    function getPoolBalance() external view onlyWhenVestingSet onlyWhenScheduleIdSet returns (uint256) {
         return _vestingContract.computeReleasableAmount(_miningVestingScheduleId);
     }
 
@@ -551,7 +620,7 @@ contract MiningPool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrade
     /**
      * @dev 获取 Vesting 计划的详细信息
      */
-    function getVestingScheduleInfo() external view returns (IVesting.VestingSchedule memory) {
+    function getVestingScheduleInfo() external view onlyWhenVestingSet onlyWhenScheduleIdSet returns (IVesting.VestingSchedule memory) {
         return _vestingContract.getVestingSchedule(_miningVestingScheduleId);
     }
 
@@ -565,7 +634,7 @@ contract MiningPool is Initializable, OwnableUpgradeable, ReentrancyGuardUpgrade
     /**
      * @dev 获取当前可释放的挖矿代币数量
      */
-    function getAvailableReleasableAmount() external view returns (uint256) {
+    function getAvailableReleasableAmount() external view onlyWhenVestingSet onlyWhenScheduleIdSet returns (uint256) {
         return _vestingContract.computeReleasableAmount(_miningVestingScheduleId);
     }
 
