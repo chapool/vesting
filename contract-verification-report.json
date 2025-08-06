@@ -1,7 +1,7 @@
 {
   "network": "hashkeyTestnet",
   "chainId": 133,
-  "verificationTime": "2025-08-05T09:05:07.681Z",
+  "verificationTime": "2025-08-06T01:31:24.339Z",
   "results": [
     {
       "contract": "HZToken",
