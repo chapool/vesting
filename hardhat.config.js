@@ -37,60 +37,57 @@ module.exports = {
         mnemonic: process.env.MNEMONIC || "test test test test test test test test test test test junk",
       },
     },
-    bscTestnet: {
-      url: "https://data-seed-prebsc-1-s1.binance.org:8545/",
-      chainId: 97,
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
-      gasPrice: 10000000000, // 10 gwei
-      gas: 6000000,
-    },
-    bscMainnet: {
-      url: "https://bsc-dataseed1.binance.org/",
-      chainId: 56,
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
-      gasPrice: 3000000000, // 3 gwei
-      gas: 6000000,
-    },
-    ethereum: {
-      url: process.env.ETHEREUM_RPC_URL || "https://eth-mainnet.g.alchemy.com/v2/YOUR-API-KEY",
-      chainId: 1,
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
-      gasPrice: "auto",
-    },
-    sepolia: {
-      url: process.env.SEPOLIA_RPC_URL || "https://eth-sepolia.g.alchemy.com/v2/YOUR-API-KEY",
-      chainId: 11155111,
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
-      gasPrice: "auto",
-    },
+    // HashKey Chain Testnet
     hashkeyTestnet: {
       url: "https://testnet.hsk.xyz",
       chainId: 133,
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       gasPrice: "auto",
+      gas: "auto",
+      timeout: 60000,
     },
+    // HashKey Chain Mainnet
     hashkeyMainnet: {
       url: "https://mainnet.hsk.xyz",
       chainId: 177,
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       gasPrice: "auto",
+      gas: "auto",
+      timeout: 60000,
     },
   },
   etherscan: {
     apiKey: {
-      mainnet: process.env.ETHERSCAN_API_KEY,
-      sepolia: process.env.ETHERSCAN_API_KEY,
-      bsc: process.env.BSCSCAN_API_KEY,
-      bscTestnet: process.env.BSCSCAN_API_KEY,
+      // HashKey Chain的验证暂时不需要API Key
+      // 如果将来HashKey Chain支持API验证，可以在这里添加
+      hashkeyTestnet: "no-api-key-needed",
+      hashkeyMainnet: "no-api-key-needed",
     },
+    customChains: [
+      {
+        network: "hashkeyTestnet",
+        chainId: 133,
+        urls: {
+          apiURL: "https://testnet-explorer.hsk.xyz/api",
+          browserURL: "https://testnet-explorer.hsk.xyz"
+        }
+      },
+      {
+        network: "hashkeyMainnet", 
+        chainId: 177,
+        urls: {
+          apiURL: "https://explorer.hsk.xyz/api",
+          browserURL: "https://explorer.hsk.xyz"
+        }
+      }
+    ]
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
     currency: "USD",
-    gasPrice: 21,
+    gasPrice: 20,
     coinmarketcap: process.env.COINMARKETCAP_API_KEY,
-    token: "BNB",
-    gasPriceApi: "https://api.bscscan.com/api?module=proxy&action=eth_gasPrice",
+    token: "HSK", // HashKey Chain native token
   },
   contractSizer: {
     alphaSort: true,
