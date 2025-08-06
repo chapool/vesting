@@ -1,0 +1,39 @@
+{
+  "network": "hashkeyTestnet",
+  "chainId": 133,
+  "verificationTime": "2025-08-05T09:05:07.681Z",
+  "results": [
+    {
+      "contract": "HZToken",
+      "status": "✅ 通过",
+      "address": "0xAC3879CB86d1B815B1519c4805A21070649493Af",
+      "implementation": "0x8cD02C155fA8D0900BA833a53AeB8A3CeCD2aE64",
+      "version": "2.1.0",
+      "owner": "0xB6e176A9E5A86AD4FA3Acad9eE605269055cE251"
+    },
+    {
+      "contract": "Vesting",
+      "status": "✅ 通过",
+      "address": "0x84Be95c1A2Bef81F41f3c563F0E79D5C1f6B46e7",
+      "implementation": "0x7D9CD974a0d1b6237f1e471C740cdEF0aB8158d2",
+      "token": "0xAC3879CB86d1B815B1519c4805A21070649493Af",
+      "owner": "0xB6e176A9E5A86AD4FA3Acad9eE605269055cE251"
+    },
+    {
+      "contract": "MiningPool",
+      "status": "✅ 通过",
+      "address": "0xf2C9640eBE2fb83d89F44994e25a2d7341880Daa",
+      "implementation": "0x0eA863506Ee07C449fc8Ca7648fFA2a76c5c89e3",
+      "token": "0xAC3879CB86d1B815B1519c4805A21070649493Af",
+      "vestingContract": "0x84Be95c1A2Bef81F41f3c563F0E79D5C1f6B46e7",
+      "version": "2.0.0",
+      "owner": "0xB6e176A9E5A86AD4FA3Acad9eE605269055cE251"
+    }
+  ],
+  "summary": {
+    "totalContracts": 3,
+    "passedContracts": 3,
+    "failedContracts": 0,
+    "overallStatus": "PASS"
+  }
+}

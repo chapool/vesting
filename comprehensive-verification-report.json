@@ -1,0 +1,72 @@
+{
+  "network": "hashkeyTestnet",
+  "chainId": 133,
+  "verificationTime": "2025-08-05T09:04:19.939Z",
+  "deployment": {
+    "network": "hashkeyTestnet",
+    "chainId": 133,
+    "deployer": "0xB6e176A9E5A86AD4FA3Acad9eE605269055cE251",
+    "timestamp": "2025-08-05T08:47:53.854Z",
+    "blockNumber": 15598508,
+    "contracts": {
+      "MiningPool": {
+        "proxy": "0xf2C9640eBE2fb83d89F44994e25a2d7341880Daa",
+        "implementation": "0x0eA863506Ee07C449fc8Ca7648fFA2a76c5c89e3"
+      },
+      "Vesting": {
+        "proxy": "0x84Be95c1A2Bef81F41f3c563F0E79D5C1f6B46e7",
+        "implementation": "0x7D9CD974a0d1b6237f1e471C740cdEF0aB8158d2"
+      },
+      "HZToken": {
+        "proxy": "0xAC3879CB86d1B815B1519c4805A21070649493Af",
+        "implementation": "0x8cD02C155fA8D0900BA833a53AeB8A3CeCD2aE64"
+      }
+    },
+    "constructorArgs": {
+      "MiningPool": [],
+      "Vesting": [
+        "0x0000000000000000000000000000000000000000"
+      ],
+      "HZToken": [
+        "HZ Token",
+        "HZ",
+        "0x84Be95c1A2Bef81F41f3c563F0E79D5C1f6B46e7"
+      ]
+    },
+    "miningPoolVestingId": "0x7d68a4befde415f47272589f7d4fe36f47d882cbbb2d12752e21bb78a9635538",
+    "miningPoolAllocation": "25000000000000000000000000"
+  },
+  "verificationResults": [
+    {
+      "contract": "HZToken",
+      "address": "0xAC3879CB86d1B815B1519c4805A21070649493Af",
+      "status": "❌ 失败",
+      "error": "Cannot mix BigInt and other types, use explicit conversions"
+    },
+    {
+      "contract": "Vesting",
+      "address": "0x84Be95c1A2Bef81F41f3c563F0E79D5C1f6B46e7",
+      "status": "❌ 失败",
+      "error": "vesting.getVestingSchedulesCount is not a function"
+    },
+    {
+      "contract": "MiningPool",
+      "address": "0xf2C9640eBE2fb83d89F44994e25a2d7341880Daa",
+      "implementation": "0x0eA863506Ee07C449fc8Ca7648fFA2a76c5c89e3",
+      "status": "✅ 通过",
+      "details": {
+        "token": "0xAC3879CB86d1B815B1519c4805A21070649493Af",
+        "vestingContract": "0x84Be95c1A2Bef81F41f3c563F0E79D5C1f6B46e7",
+        "miningVestingScheduleId": "0x7d68a4befde415f47272589f7d4fe36f47d882cbbb2d12752e21bb78a9635538",
+        "owner": "0xB6e176A9E5A86AD4FA3Acad9eE605269055cE251",
+        "version": "2.0.0"
+      }
+    }
+  ],
+  "overallStatus": "FAIL",
+  "summary": {
+    "totalContracts": 3,
+    "passedContracts": 1,
+    "failedContracts": 2
+  }
+}

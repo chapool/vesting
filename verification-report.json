@@ -1,0 +1,32 @@
+{
+  "network": "hashkeyTestnet",
+  "chainId": 133,
+  "verificationTime": "2025-08-05T09:03:17.105Z",
+  "results": [
+    {
+      "contractName": "HZToken",
+      "implementationAddress": "0x8cD02C155fA8D0900BA833a53AeB8A3CeCD2aE64",
+      "onChainBytecodeLength": 29694,
+      "localBytecodeLength": 30174,
+      "prefixMatch": false,
+      "functionalityWorking": true
+    },
+    {
+      "contractName": "Vesting",
+      "implementationAddress": "0x7D9CD974a0d1b6237f1e471C740cdEF0aB8158d2",
+      "onChainBytecodeLength": 18172,
+      "localBytecodeLength": 18652,
+      "prefixMatch": false,
+      "functionalityWorking": true
+    },
+    {
+      "contractName": "MiningPool",
+      "implementationAddress": "0x0eA863506Ee07C449fc8Ca7648fFA2a76c5c89e3",
+      "onChainBytecodeLength": 35578,
+      "localBytecodeLength": 36058,
+      "prefixMatch": false,
+      "functionalityWorking": true
+    }
+  ],
+  "overallStatus": "PASS"
+}
