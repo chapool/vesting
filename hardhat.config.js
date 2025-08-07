@@ -50,7 +50,16 @@ module.exports = {
     hashkeyMainnet: {
       url: "https://mainnet.hsk.xyz",
       chainId: 177,
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      accounts: process.env.PRIVATE_KEY 
+        ? [process.env.PRIVATE_KEY] 
+        : process.env.MNEMONIC 
+        ? { 
+            mnemonic: process.env.MNEMONIC,
+            path: "m/44'/60'/0'/0",
+            initialIndex: 9, // 从索引9开始（你的钱包地址）
+            count: 1
+          }
+        : [],
       gasPrice: "auto",
       gas: "auto",
       timeout: 60000,
