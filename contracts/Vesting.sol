@@ -325,6 +325,190 @@ contract Vesting is Initializable, OwnableUpgradeable, UUPSUpgradeable, Reentran
         return keccak256(abi.encodePacked(holder, index));
     }
 
+    // ==================== 前端展示接口实现 ====================
+
+    /**
+     * @dev 获取受益人的所有vesting计划详情
+     */
+    function getBeneficiaryVestingSchedules(address beneficiary) 
+        external view returns (VestingSchedule[] memory) {
+        uint256 scheduleCount = _holdersVestingCount[beneficiary];
+        VestingSchedule[] memory schedules = new VestingSchedule[](scheduleCount);
+        
+        for (uint256 i = 0; i < scheduleCount; i++) {
+            bytes32 scheduleId = computeVestingScheduleIdForAddressAndIndex(beneficiary, i);
+            schedules[i] = _schedules[scheduleId];
+        }
+        
+        return schedules;
+    }
+
+    /**
+     * @dev 获取受益人的汇总信息
+     */
+    function getBeneficiaryVestingSummary(address beneficiary)
+        external view returns (BeneficiarySummary memory) {
+        
+        uint256 scheduleCount = _holdersVestingCount[beneficiary];
+        uint256 totalAmount = 0;
+        uint256 releasedAmount = 0;
+        uint256 releasableAmount = 0;
+        
+        for (uint256 i = 0; i < scheduleCount; i++) {
+            bytes32 scheduleId = computeVestingScheduleIdForAddressAndIndex(beneficiary, i);
+            VestingSchedule storage schedule = _schedules[scheduleId];
+            
+            if (!schedule.revoked) {
+                totalAmount += schedule.amountTotal;
+                releasedAmount += schedule.released;
+                releasableAmount += _computeReleasableAmount(schedule);
+            }
+        }
+        
+        uint256 lockedAmount = totalAmount - releasedAmount - releasableAmount;
+        
+        return BeneficiarySummary({
+            totalAmount: totalAmount,
+            releasedAmount: releasedAmount,
+            releasableAmount: releasableAmount,
+            lockedAmount: lockedAmount,
+            scheduleCount: scheduleCount
+        });
+    }
+
+    /**
+     * @dev 获取vesting计划的进度信息
+     */
+    function getVestingProgress(bytes32 vestingScheduleId)
+        external view returns (VestingProgress memory) {
+        
+        VestingSchedule storage schedule = _schedules[vestingScheduleId];
+        require(schedule.initialized, "Vesting: schedule not found");
+        
+        uint256 releasableAmount = _computeReleasableAmount(schedule);
+        uint256 lockedAmount = schedule.amountTotal - schedule.released - releasableAmount;
+        
+        // 计算释放进度百分比 (0-10000)
+        uint256 progressPercent = 0;
+        if (schedule.amountTotal > 0) {
+            progressPercent = (schedule.released * 10000) / schedule.amountTotal;
+        }
+        
+        // 计算时间进度百分比 (0-10000)
+        uint256 timeProgress = 0;
+        uint256 remainingTime = 0;
+        uint256 currentTime = getCurrentTime();
+        
+        if (currentTime >= schedule.start + schedule.duration) {
+            timeProgress = 10000; // 100%
+            remainingTime = 0;
+        } else if (currentTime >= schedule.start) {
+            uint256 elapsed = currentTime - schedule.start;
+            timeProgress = (elapsed * 10000) / schedule.duration;
+            remainingTime = schedule.start + schedule.duration - currentTime;
+        } else {
+            timeProgress = 0;
+            remainingTime = schedule.start + schedule.duration - currentTime;
+        }
+        
+        bool isActive = !schedule.revoked && (schedule.released < schedule.amountTotal);
+        
+        return VestingProgress({
+            totalAmount: schedule.amountTotal,
+            releasedAmount: schedule.released,
+            releasableAmount: releasableAmount,
+            lockedAmount: lockedAmount,
+            progressPercent: progressPercent,
+            timeProgress: timeProgress,
+            remainingTime: remainingTime,
+            isActive: isActive
+        });
+    }
+
+    /**
+     * @dev 获取受益人按类别分组的计划信息
+     */
+    function getBeneficiarySchedulesByCategory(address beneficiary)
+        external view returns (CategorySchedules[] memory) {
+        
+        uint256 scheduleCount = _holdersVestingCount[beneficiary];
+        if (scheduleCount == 0) {
+            return new CategorySchedules[](0);
+        }
+        
+        // 先统计有哪些类别以及每个类别的计划数量
+        bool[4] memory categoryExists; // 对应4个枚举值
+        uint256[4] memory categoryCounts;
+        
+        for (uint256 i = 0; i < scheduleCount; i++) {
+            bytes32 scheduleId = computeVestingScheduleIdForAddressAndIndex(beneficiary, i);
+            VestingSchedule storage schedule = _schedules[scheduleId];
+            
+            if (!schedule.revoked) {
+                uint256 categoryIndex = uint256(schedule.category);
+                if (!categoryExists[categoryIndex]) {
+                    categoryExists[categoryIndex] = true;
+                }
+                categoryCounts[categoryIndex]++;
+            }
+        }
+        
+        // 计算实际存在的类别数量
+        uint256 activeCategoryCount = 0;
+        for (uint256 i = 0; i < 4; i++) {
+            if (categoryExists[i]) {
+                activeCategoryCount++;
+            }
+        }
+        
+        // 创建结果数组
+        CategorySchedules[] memory result = new CategorySchedules[](activeCategoryCount);
+        uint256 resultIndex = 0;
+        
+        // 为每个存在的类别收集数据
+        for (uint256 categoryIndex = 0; categoryIndex < 4; categoryIndex++) {
+            if (!categoryExists[categoryIndex]) {
+                continue;
+            }
+            
+            AllocationCategory category = AllocationCategory(categoryIndex);
+            uint256 categoryScheduleCount = categoryCounts[categoryIndex];
+            
+            // 创建这个类别的计划ID数组
+            bytes32[] memory categoryIds = new bytes32[](categoryScheduleCount);
+            uint256 totalAmount = 0;
+            uint256 releasedAmount = 0;
+            uint256 releasableAmount = 0;
+            uint256 categoryIdIndex = 0;
+            
+            // 收集这个类别的数据
+            for (uint256 i = 0; i < scheduleCount; i++) {
+                bytes32 scheduleId = computeVestingScheduleIdForAddressAndIndex(beneficiary, i);
+                VestingSchedule storage schedule = _schedules[scheduleId];
+                
+                if (!schedule.revoked && schedule.category == category) {
+                    categoryIds[categoryIdIndex] = scheduleId;
+                    totalAmount += schedule.amountTotal;
+                    releasedAmount += schedule.released;
+                    releasableAmount += _computeReleasableAmount(schedule);
+                    categoryIdIndex++;
+                }
+            }
+            
+            result[resultIndex] = CategorySchedules({
+                category: category,
+                scheduleIds: categoryIds,
+                totalAmount: totalAmount,
+                releasedAmount: releasedAmount,
+                releasableAmount: releasableAmount
+            });
+            
+            resultIndex++;
+        }
+        
+        return result;
+    }
+
     // ==================== 内部函数 ====================
 
     /**

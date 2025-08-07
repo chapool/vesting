@@ -180,6 +180,76 @@ interface IVesting {
     function computeVestingScheduleIdForAddressAndIndex(address holder, uint256 index)
         external pure returns (bytes32);
     
+    // ==================== 前端展示接口 ====================
+    
+    /**
+     * @dev 受益人汇总信息结构体
+     */
+    struct BeneficiarySummary {
+        uint256 totalAmount;        // 总分配数量
+        uint256 releasedAmount;     // 已释放数量
+        uint256 releasableAmount;   // 当前可释放数量
+        uint256 lockedAmount;       // 仍锁定数量
+        uint256 scheduleCount;      // 计划数量
+    }
+    
+    /**
+     * @dev 计划进度信息结构体
+     */
+    struct VestingProgress {
+        uint256 totalAmount;        // 总数量
+        uint256 releasedAmount;     // 已释放数量
+        uint256 releasableAmount;   // 可释放数量
+        uint256 lockedAmount;       // 锁定数量
+        uint256 progressPercent;    // 进度百分比(0-10000，代表0%-100%，精确到0.01%)
+        uint256 timeProgress;       // 时间进度百分比(0-10000)
+        uint256 remainingTime;      // 剩余时间(秒)
+        bool isActive;              // 是否活跃(未撤销且未完全释放)
+    }
+    
+    /**
+     * @dev 按类别分组的计划信息结构体
+     */
+    struct CategorySchedules {
+        AllocationCategory category;
+        bytes32[] scheduleIds;
+        uint256 totalAmount;
+        uint256 releasedAmount;
+        uint256 releasableAmount;
+    }
+    
+    /**
+     * @dev 获取受益人的所有vesting计划详情
+     * @param beneficiary 受益人地址
+     * @return 计划详情数组
+     */
+    function getBeneficiaryVestingSchedules(address beneficiary) 
+        external view returns (VestingSchedule[] memory);
+    
+    /**
+     * @dev 获取受益人的汇总信息
+     * @param beneficiary 受益人地址
+     * @return 汇总信息结构体
+     */
+    function getBeneficiaryVestingSummary(address beneficiary)
+        external view returns (BeneficiarySummary memory);
+    
+    /**
+     * @dev 获取vesting计划的进度信息
+     * @param vestingScheduleId 计划ID
+     * @return 进度信息结构体
+     */
+    function getVestingProgress(bytes32 vestingScheduleId)
+        external view returns (VestingProgress memory);
+    
+    /**
+     * @dev 获取受益人按类别分组的计划信息
+     * @param beneficiary 受益人地址
+     * @return 按类别分组的计划信息数组
+     */
+    function getBeneficiarySchedulesByCategory(address beneficiary)
+        external view returns (CategorySchedules[] memory);
+    
     // ==================== 事件定义 ====================
     
     /**
