@@ -1,10 +1,10 @@
-# CPOTP系统合约详细设计
+# CPOP系统合约详细设计
 
 ## 合约架构总览
 
-CPOTP积分系统由6个核心合约组成，采用混合架构设计：核心功能在链上实现，复杂业务逻辑在链下处理，通过标准化接口相互协作。支持CPOT代币双向流通。
+CPOP积分系统由6个核心合约组成，采用混合架构设计：核心功能在链上实现，复杂业务逻辑在链下处理，通过标准化接口相互协作。支持CPOT代币双向流通。
 
-## 1. CPOTPToken 合约 - 核心积分代币
+## 1. CPOPToken 合约 - 核心积分代币
 
 ### 基础信息
 - **继承**: ERC20Upgradeable, OwnableUpgradeable, PausableUpgradeable
@@ -78,7 +78,7 @@ function _update(address from, address to, uint256 amount) internal override {
     if (from != address(0) && to != address(0)) {
         require(
             isWhitelistedContract[from] || isWhitelistedContract[to],
-            "CPOTP: transfer not allowed"
+            "CPOP: transfer not allowed"
         );
     }
     super._update(from, to, amount);
@@ -107,7 +107,7 @@ function updateUserLevel(address user) public returns (uint8 newLevel) {
 - `PAUSER_ROLE`: 暂停合约权限 (管理员)
 - `WHITELIST_MANAGER_ROLE`: 白名单管理权限
 
-## 2. CPOTPAAWallet 合约 - 账户抽象钱包
+## 2. CPOPAAWallet 合约 - 账户抽象钱包
 
 ### EIP-4337 兼容实现
 基于EntryPoint v0.6标准实现完整的账户抽象功能。
@@ -219,7 +219,7 @@ function _checkSpendingLimit(uint256 amount) internal {
 }
 ```
 
-## 3. CPOTPPaymaster 合约 - Gas费代付
+## 3. CPOPPaymaster 合约 - Gas费代付
 
 ### EIP-4337 Paymaster实现
 
@@ -281,7 +281,7 @@ function postOp(
 }
 ```
 
-## 4. CPOTPConsumer 合约 - 通用积分消费
+## 4. CPOPConsumer 合约 - 通用积分消费
 
 ### 设计理念
 采用混合架构设计：
@@ -329,7 +329,7 @@ struct UCardTopup {
     string cardId;             // 卡片ID
     uint256 cpotpAmount;       // 积分数量
     uint256 fiatAmount;        // 对应法币金额 (精度18位)
-    uint256 exchangeRate;      // 汇率 (CPOTP:USD，精度18位)
+    uint256 exchangeRate;      // 汇率 (CPOP:USD，精度18位)
     uint256 timestamp;         // 充值时间
     bytes32 txHash;            // 交易哈希
     bool processed;            // 是否已处理
@@ -458,7 +458,7 @@ function topupUCard(
     require(uCards[cardId].isActive, "Card not active");
     
     // 检查用户积分余额
-    require(cpotpToken.balanceOf(user) >= cpotpAmount, "Insufficient CPOTP balance");
+    require(cpotpToken.balanceOf(user) >= cpotpAmount, "Insufficient CPOP balance");
     
     // 🔥 销毁用户积分用于充值
     cpotpToken.burnFrom(user, cpotpAmount);
@@ -688,14 +688,14 @@ class MallService {
 // U卡服务集成示例
 class UCardService {
     async topupUCard(userId, cardId, cpotpAmount) {
-        // 1. 获取实时汇率（CPOTP:USD）
+        // 1. 获取实时汇率（CPOP:USD）
         const exchangeRate = await this.getCurrentExchangeRate();
         const fiatAmount = (cpotpAmount * exchangeRate) / 1e18;
         
         // 2. 检查用户积分余额
         const balance = await cpotpToken.balanceOf(userId);
         if (balance < cpotpAmount) {
-            throw new Error('Insufficient CPOTP balance');
+            throw new Error('Insufficient CPOP balance');
         }
         
         // 3. 调用合约充值
@@ -764,8 +764,8 @@ class UCardService {
     // 获取实时汇率
     async getCurrentExchangeRate() {
         // 这里对接外部汇率API
-        // 返回 CPOTP:USD 的汇率
-        return 0.01; // 示例：1 CPOTP = 0.01 USD
+        // 返回 CPOP:USD 的汇率
+        return 0.01; // 示例：1 CPOP = 0.01 USD
     }
     
     // 批量处理充值
@@ -787,7 +787,7 @@ class UCardService {
 }
 ```
 
-## 5. CPOTPExchange 合约 - CPOT兑换系统
+## 5. CPOPExchange 合约 - CPOT兑换系统
 
 ### 数据结构
 
@@ -804,7 +804,7 @@ enum ExchangeStatus {
 struct ExchangeRequest {
     uint256 requestId;
     address user;
-    uint256 cpotpAmount;        // 申请兑换的CPOTP数量
+    uint256 cpotpAmount;        // 申请兑换的CPOP数量
     uint256 cpotAmount;         // 对应的CPOT数量
     ExchangeStatus status;
     uint256 requestTime;
@@ -816,18 +816,18 @@ struct ExchangeRequest {
 
 // 兑换配置
 struct ExchangeConfig {
-    uint256 exchangeRate;       // 兑换比例 (CPOTP:CPOT = 1000:1)
+    uint256 exchangeRate;       // 兑换比例 (CPOP:CPOT = 1000:1)
     uint256 minExchangeAmount;  // 最小兑换数量
     uint256 maxExchangeAmount;  // 最大兑换数量
     uint256 dailyLimit;         // 每日兑换限额
-    uint256 processingFee;      // 处理费用 (CPOTP)
+    uint256 processingFee;      // 处理费用 (CPOP)
     bool autoApprovalEnabled;   // 自动审批开关
     uint256 autoApprovalLimit;  // 自动审批限额
 }
 
 // 用户兑换统计
 struct UserExchangeStats {
-    uint256 totalExchanged;     // 累计兑换CPOTP
+    uint256 totalExchanged;     // 累计兑换CPOP
     uint256 totalReceived;      // 累计获得CPOT
     uint256 exchangedToday;     // 今日已兑换
     uint256 lastResetTime;      // 上次重置时间
@@ -851,7 +851,7 @@ function requestExchange(uint256 cpotpAmount) external returns (uint256 requestI
     uint256 cpotAmount = (cpotpAmount * 1e18) / exchangeConfig.exchangeRate;
     uint256 totalCost = cpotpAmount + exchangeConfig.processingFee;
     
-    // 销毁用户的CPOTP (包含手续费)
+    // 销毁用户的CPOP (包含手续费)
     cpotpToken.burnFrom(user, totalCost);
     
     // 创建兑换请求
@@ -897,10 +897,10 @@ function approveExchange(uint256 requestId) external onlyRole(APPROVER_ROLE) {
 }
 ```
 
-## 6. CPOTPRecharge 合约 - CPOT充值系统
+## 6. CPOPRecharge 合约 - CPOT充值系统
 
 ### 设计理念
-实现CPOT代币到CPOTP积分的双向流通，允许用户使用已有的CPOT代币充值获得积分，形成完整的代币经济闭环。
+实现CPOT代币到CPOP积分的双向流通，允许用户使用已有的CPOT代币充值获得积分，形成完整的代币经济闭环。
 
 ### 数据结构
 
@@ -918,8 +918,8 @@ struct RechargeRecord {
     uint256 rechargeId;         // 充值ID
     address user;               // 充值用户
     uint256 cpotAmount;         // CPOT代币数量
-    uint256 cpotpAmount;        // 获得的CPOTP积分数量
-    uint256 exchangeRate;       // 兑换比例 (CPOT:CPOTP)
+    uint256 cpotpAmount;        // 获得的CPOP积分数量
+    uint256 exchangeRate;       // 兑换比例 (CPOT:CPOP)
     uint256 bonusRate;          // 奖励倍率 (基点制)
     RechargeStatus status;      // 充值状态
     uint256 timestamp;          // 充值时间
@@ -928,7 +928,7 @@ struct RechargeRecord {
 
 // 充值配置
 struct RechargeConfig {
-    uint256 baseExchangeRate;   // 基础兑换比例 (1 CPOT = ? CPOTP)
+    uint256 baseExchangeRate;   // 基础兑换比例 (1 CPOT = ? CPOP)
     uint256 minRechargeAmount;  // 最小充值数量
     uint256 maxRechargeAmount;  // 最大充值数量
     uint256 dailyLimit;         // 每日充值限额
@@ -942,7 +942,7 @@ struct RechargeConfig {
 // 用户充值统计
 struct UserRechargeStats {
     uint256 totalRecharged;     // 累计充值CPOT
-    uint256 totalReceived;      // 累计获得CPOTP
+    uint256 totalReceived;      // 累计获得CPOP
     uint256 rechargedToday;     // 今日已充值
     uint256 lastResetTime;      // 上次重置时间
     uint256 rechargeCount;      // 充值次数
@@ -953,8 +953,8 @@ struct UserRechargeStats {
 ### 核心功能
 
 ```solidity
-// CPOT充值兑换CPOTP
-function rechargeCPOTP(uint256 cpotAmount) external returns (uint256 rechargeId) {
+// CPOT充值兑换CPOP
+function rechargeCPOP(uint256 cpotAmount) external returns (uint256 rechargeId) {
     require(rechargeConfig.enabled, "Recharge disabled");
     require(cpotAmount >= rechargeConfig.minRechargeAmount, "Below minimum amount");
     require(cpotAmount <= rechargeConfig.maxRechargeAmount, "Exceeds maximum amount");
@@ -964,8 +964,8 @@ function rechargeCPOTP(uint256 cpotAmount) external returns (uint256 rechargeId)
     // 检查每日限额
     _checkDailyRechargeLimit(user, cpotAmount);
     
-    // 计算获得的CPOTP数量（包含奖励）
-    uint256 cpotpAmount = _calculateCPOTPAmount(cpotAmount);
+    // 计算获得的CPOP数量（包含奖励）
+    uint256 cpotpAmount = _calculateCPOPAmount(cpotAmount);
     uint256 bonusRate = _calculateBonusRate(cpotAmount);
     
     // 从用户账户转移CPOT到合约（销毁或存储到国库）
@@ -976,7 +976,7 @@ function rechargeCPOTP(uint256 cpotAmount) external returns (uint256 rechargeId)
         cpotToken.burn(cpotAmount);
     }
     
-    // 铸造CPOTP积分给用户
+    // 铸造CPOP积分给用户
     cpotpToken.mint(user, cpotpAmount);
     
     // 记录充值
@@ -1027,17 +1027,17 @@ function batchConfirmRecharges(uint256[] calldata rechargeIds)
 
 ```solidity
 // 计算充值奖励
-function _calculateCPOTPAmount(uint256 cpotAmount) internal view returns (uint256) {
+function _calculateCPOPAmount(uint256 cpotAmount) internal view returns (uint256) {
     // 基础兑换
-    uint256 baseCPOTP = cpotAmount * rechargeConfig.baseExchangeRate;
+    uint256 baseCPOP = cpotAmount * rechargeConfig.baseExchangeRate;
     
     // 计算奖励倍率
     uint256 bonusRate = _calculateBonusRate(cpotAmount);
     
     // 应用奖励
-    uint256 bonusAmount = (baseCPOTP * bonusRate) / 10000;
+    uint256 bonusAmount = (baseCPOP * bonusRate) / 10000;
     
-    return baseCPOTP + bonusAmount;
+    return baseCPOP + bonusAmount;
 }
 
 function _calculateBonusRate(uint256 cpotAmount) internal view returns (uint256) {
@@ -1134,17 +1134,17 @@ function previewRecharge(address user, uint256 cpotAmount)
     }
     
     // 基础兑换
-    uint256 baseCPOTP = cpotAmount * rechargeConfig.baseExchangeRate;
+    uint256 baseCPOP = cpotAmount * rechargeConfig.baseExchangeRate;
     
     // 充值奖励
     uint256 rechargeBonusRate = _calculateBonusRate(cpotAmount);
-    uint256 rechargeBonus = (baseCPOTP * rechargeBonusRate) / 10000;
+    uint256 rechargeBonus = (baseCPOP * rechargeBonusRate) / 10000;
     
     // VIP/等级奖励
     uint256 vipBonusRate = _getVIPBonusRate(user);
-    uint256 vipBonus = (baseCPOTP * vipBonusRate) / 10000;
+    uint256 vipBonus = (baseCPOP * vipBonusRate) / 10000;
     
-    cpotpAmount = baseCPOTP + rechargeBonus + vipBonus;
+    cpotpAmount = baseCPOP + rechargeBonus + vipBonus;
     bonusAmount = rechargeBonus + vipBonus;
     totalBonus = rechargeBonusRate + vipBonusRate;
     eligible = true;
@@ -1207,7 +1207,7 @@ event RechargeFailed(
 );
 ```
 
-## 7. CPOTPActivity 合约 - 任务活动系统
+## 7. CPOPActivity 合约 - 任务活动系统
 
 ### 数据结构
 
@@ -1338,35 +1338,35 @@ function dailySignIn() external returns (uint256 pointsEarned) {
 ## 部署配置
 
 ### 部署顺序
-1. **CPOTPToken** - 核心积分代币
-2. **CPOTPAAWallet** - 账户抽象钱包
-3. **CPOTPPaymaster** - Gas费代付
-4. **CPOTPConsumer** - 通用积分消费
-5. **CPOTPRecharge** - CPOT充值系统
-6. **CPOTPActivity** - 任务活动系统
-7. **CPOTPExchange** - CPOT兑换系统
+1. **CPOPToken** - 核心积分代币
+2. **CPOPAAWallet** - 账户抽象钱包
+3. **CPOPPaymaster** - Gas费代付
+4. **CPOPConsumer** - 通用积分消费
+5. **CPOPRecharge** - CPOT充值系统
+6. **CPOPActivity** - 任务活动系统
+7. **CPOPExchange** - CPOT兑换系统
 
 ### 权限配置
 ```solidity
-// CPOTPToken权限分配
-CPOTPToken.grantRole(MINTER_ROLE, CPOTPActivity);
-CPOTPToken.grantRole(MINTER_ROLE, CPOTPRecharge);
-CPOTPToken.grantRole(MINTER_ROLE, admin);
-CPOTPToken.grantRole(BURNER_ROLE, CPOTPConsumer);
-CPOTPToken.grantRole(BURNER_ROLE, CPOTPExchange);
-CPOTPToken.grantRole(BURNER_ROLE, CPOTPPaymaster);
+// CPOPToken权限分配
+CPOPToken.grantRole(MINTER_ROLE, CPOPActivity);
+CPOPToken.grantRole(MINTER_ROLE, CPOPRecharge);
+CPOPToken.grantRole(MINTER_ROLE, admin);
+CPOPToken.grantRole(BURNER_ROLE, CPOPConsumer);
+CPOPToken.grantRole(BURNER_ROLE, CPOPExchange);
+CPOPToken.grantRole(BURNER_ROLE, CPOPPaymaster);
 
 // 白名单配置
-CPOTPToken.addToWhitelist(CPOTPActivity);
-CPOTPToken.addToWhitelist(CPOTPConsumer);
-CPOTPToken.addToWhitelist(CPOTPRecharge);
-CPOTPToken.addToWhitelist(CPOTPExchange);
+CPOPToken.addToWhitelist(CPOPActivity);
+CPOPToken.addToWhitelist(CPOPConsumer);
+CPOPToken.addToWhitelist(CPOPRecharge);
+CPOPToken.addToWhitelist(CPOPExchange);
 ```
 
-## 8. CPOTPUCardRecords 合约 - U卡交易记录系统
+## 8. CPOPUCardRecords 合约 - U卡交易记录系统
 
 ### 设计理念
-CPOTPUCardRecords合约负责将所有U卡相关的交易记录、充值提现等操作记录到区块链上，确保交易的透明性、可追溯性和不可篡改性。采用隐私保护与透明性平衡的设计。
+CPOPUCardRecords合约负责将所有U卡相关的交易记录、充值提现等操作记录到区块链上，确保交易的透明性、可追溯性和不可篡改性。采用隐私保护与透明性平衡的设计。
 
 ### 数据结构设计
 
@@ -1416,9 +1416,9 @@ struct TopUpRecord {
     bytes32 recordId;           // 唯一记录ID
     address user;               // 用户地址
     bytes32 cardIdHash;         // U卡ID哈希（隐私保护）
-    uint256 cpotpAmount;        // 消耗的CPOTP积分数量
+    uint256 cpotpAmount;        // 消耗的CPOP积分数量
     uint256 fiatAmount;         // 充值的法币金额（以美分为单位）
-    uint256 exchangeRate;       // 汇率（CPOTP:USD，精度18位）
+    uint256 exchangeRate;       // 汇率（CPOP:USD，精度18位）
     uint256 timestamp;          // 充值时间戳
     RecordStatus status;        // 记录状态
     bytes32 transactionHash;    // 金融服务交易哈希
@@ -1702,7 +1702,7 @@ function _computeDataHash(
     uint256 amount1,
     uint256 amount2
 ) internal pure returns (bytes32) {
-    return keccak256(abi.encodePacked(user, cardIdHash, amount1, amount2, "CPOTP_INTEGRITY"));
+    return keccak256(abi.encodePacked(user, cardIdHash, amount1, amount2, "CPOP_INTEGRITY"));
 }
 ```
 

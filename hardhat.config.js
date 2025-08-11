@@ -41,7 +41,7 @@ module.exports = {
     hashkeyTestnet: {
       url: "https://testnet.hsk.xyz",
       chainId: 133,
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      accounts: process.env.TESTNET_PRIVATE_KEY ? [process.env.TESTNET_PRIVATE_KEY] : [],
       gasPrice: "auto",
       gas: "auto",
       timeout: 60000,
@@ -50,8 +50,8 @@ module.exports = {
     hashkeyMainnet: {
       url: "https://mainnet.hsk.xyz",
       chainId: 177,
-      accounts: process.env.PRIVATE_KEY 
-        ? [process.env.PRIVATE_KEY] 
+      accounts: process.env.MAINNET_PRIVATE_KEY 
+        ? [process.env.MAINNET_PRIVATE_KEY] 
         : process.env.MNEMONIC 
         ? { 
             mnemonic: process.env.MNEMONIC,

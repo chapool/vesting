@@ -1,8 +1,8 @@
-# CPOTP系统安全设计
+# CPOP系统安全设计
 
 ## 安全架构概述
 
-CPOTP积分系统采用多层次安全防护架构，从智能合约层面到业务逻辑层面，全方位保障系统安全性和资金安全。
+CPOP积分系统采用多层次安全防护架构，从智能合约层面到业务逻辑层面，全方位保障系统安全性和资金安全。
 
 ## 智能合约安全
 
@@ -13,7 +13,7 @@ CPOTP积分系统采用多层次安全防护架构，从智能合约层面到业
 // 使用 ReentrancyGuard 修饰符
 import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 
-contract CPOTPToken is ReentrancyGuardUpgradeable {
+contract CPOPToken is ReentrancyGuardUpgradeable {
     function burnFrom(address account, uint256 amount) 
         external 
         nonReentrant 
@@ -44,14 +44,14 @@ function calculateReward(uint256 baseAmount, uint256 multiplier)
 // 基于角色的访问控制 (RBAC)
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
-contract CPOTPToken is AccessControlUpgradeable {
+contract CPOPToken is AccessControlUpgradeable {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant WHITELIST_MANAGER_ROLE = keccak256("WHITELIST_MANAGER_ROLE");
     
     modifier onlyMinter() {
-        require(hasRole(MINTER_ROLE, _msgSender()), "CPOTP: caller is not a minter");
+        require(hasRole(MINTER_ROLE, _msgSender()), "CPOP: caller is not a minter");
         _;
     }
 }
@@ -67,10 +67,10 @@ function mintPoints(
     PointSource source,
     string memory reason
 ) external onlyMinter {
-    require(to != address(0), "CPOTP: mint to zero address");
-    require(amount > 0, "CPOTP: amount must be positive");
-    require(amount <= MAX_MINT_AMOUNT, "CPOTP: amount exceeds maximum");
-    require(bytes(reason).length > 0, "CPOTP: reason required");
+    require(to != address(0), "CPOP: mint to zero address");
+    require(amount > 0, "CPOP: amount must be positive");
+    require(amount <= MAX_MINT_AMOUNT, "CPOP: amount exceeds maximum");
+    require(bytes(reason).length > 0, "CPOP: reason required");
     
     // 检查每日限额
     _checkDailyMintLimit(to, amount, source);
@@ -83,9 +83,9 @@ function mintPoints(
 #### 地址验证
 ```solidity
 function addToWhitelist(address contractAddress) external onlyRole(WHITELIST_MANAGER_ROLE) {
-    require(contractAddress != address(0), "CPOTP: zero address");
-    require(!isWhitelistedContract[contractAddress], "CPOTP: already whitelisted");
-    require(_isContract(contractAddress), "CPOTP: not a contract");
+    require(contractAddress != address(0), "CPOP: zero address");
+    require(!isWhitelistedContract[contractAddress], "CPOP: already whitelisted");
+    require(_isContract(contractAddress), "CPOP: not a contract");
     
     isWhitelistedContract[contractAddress] = true;
     emit ContractWhitelisted(contractAddress);
@@ -161,7 +161,7 @@ function _update(address from, address to, uint256 amount) internal override {
     // 普通转账必须涉及白名单合约
     require(
         isWhitelistedContract[from] || isWhitelistedContract[to],
-        "CPOTP: transfer not allowed between EOA addresses"
+        "CPOP: transfer not allowed between EOA addresses"
     );
     
     // 记录转账用于审计
@@ -178,7 +178,7 @@ function transfer(address to, uint256 amount) public virtual override returns (b
     address from = _msgSender();
     
     // 只有白名单合约可以发起转账
-    require(isWhitelistedContract[from], "CPOTP: direct transfer not allowed");
+    require(isWhitelistedContract[from], "CPOP: direct transfer not allowed");
     
     return super.transfer(to, amount);
 }
@@ -404,7 +404,7 @@ function addAllowedOperation(bytes4 selector) external onlyOwner {
 
 #### 关键操作多签验证
 ```solidity
-contract CPOTPMultiSig {
+contract CPOPMultiSig {
     mapping(bytes32 => uint256) public confirmations;
     mapping(bytes32 => mapping(address => bool)) public hasConfirmed;
     
@@ -513,7 +513,7 @@ contract EmergencyWithdrawal {
         
         emergencyWithdrawn[msg.sender] = true;
         
-        // 将CPOTP转换为等值的ETH或稳定币返还用户
+        // 将CPOP转换为等值的ETH或稳定币返还用户
         _processEmergencyWithdrawal(msg.sender, balance);
         
         emit EmergencyWithdrawal(msg.sender, balance);
@@ -1364,4 +1364,4 @@ contract UCardDataRecovery {
 }
 ```
 
-这个安全设计确保了CPOTP系统在各个层面的安全性，特别是U卡记录系统的隐私保护、数据完整性、访问控制和合规性，为用户资金和系统稳定性提供了全方位保护。
+这个安全设计确保了CPOP系统在各个层面的安全性，特别是U卡记录系统的隐私保护、数据完整性、访问控制和合规性，为用户资金和系统稳定性提供了全方位保护。
