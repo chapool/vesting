@@ -4,6 +4,12 @@ require("hardhat-contract-sizer");
 require("hardhat-gas-reporter");
 require("solidity-coverage");
 require("dotenv").config();
+// Attempt to load opBNB-specific env if present (non-fatal if missing)
+try {
+  require("dotenv").config({ path: ".env.opBNB", override: false });
+} catch (e) {
+  // ignore if file not present
+}
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
@@ -36,6 +42,24 @@ module.exports = {
       accounts: {
         mnemonic: process.env.MNEMONIC || "test test test test test test test test test test test junk",
       },
+    },
+    // opBNB Mainnet
+    opbnb: {
+      url: process.env.OPBNB_RPC_URL || "",
+      chainId: 204,
+      accounts: process.env.OPBNB_PRIVATE_KEY
+        ? [process.env.OPBNB_PRIVATE_KEY]
+        : process.env.MNEMONIC
+        ? {
+            mnemonic: process.env.MNEMONIC,
+            path: "m/44'/60'/0'/0",
+            initialIndex: Number(process.env.ACCOUNT_INDEX || 0),
+            count: 1,
+          }
+        : [],
+      gasPrice: process.env.OPBNB_GAS_PRICE ? Number(process.env.OPBNB_GAS_PRICE) : "auto",
+      gas: "auto",
+      timeout: Number(process.env.NETWORK_TIMEOUT || 60000),
     },
     // HashKey Chain Testnet
     hashkeyTestnet: {

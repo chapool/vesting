@@ -1,4 +1,4 @@
-# HZ Token v2.1 - 企业级智能合约系统
+# Chapool Token (CPOT) - Vesting & Mining System
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Solidity](https://img.shields.io/badge/solidity-^0.8.19-green.svg)
@@ -6,597 +6,200 @@
 ![OpenZeppelin](https://img.shields.io/badge/OpenZeppelin-v5.4.0-red.svg)
 ![Version](https://img.shields.io/badge/version-2.1.0-brightgreen.svg)
 
-## 📋 项目概述
+## 🌍 Deployed Contracts (opBNB Mainnet)
 
-HZ Token 是一个功能完整的企业级 ERC-20 代币生态系统，具备动态交易税、三级审批挖矿池、灵活释放机制等高级功能。采用 OpenZeppelin 5.x 可升级架构，为 DeFi 项目提供安全可靠的技术基础。
+| Contract Name | Proxy Address | Implementation Address |
+|---------------|---------------|------------------------|
+| **CPOToken** | `0x549d576069099F524A42ABa0b7CcB1b9b148B505` | `0xEcd8E2a927A9Fb9F37f9fa64Fe0D1922368Ed73A` |
+| **Vesting** | `0x084e367B171101432c1F862f28A1792e5bA374b8` | `0x9732deDA98b373807b152b6f4140a9F30CAaCDe5` |
 
-### 🎯 核心特性
+- **Network**: opBNB
+- **Chain ID**: 204
+- **Explorer**: [opBNBScan](https://opbnbscan.com/)
 
-#### 💰 代币系统
-- **总供应量**: 100 亿枚 HZ 代币，固定供应量
-- **动态交易税**: 基于交易量、金额、类型的智能税率调整
-- **黑名单管理**: 灵活的风险控制机制
-- **暂停功能**: 紧急情况下的系统保护
+## 📖 Introduction: What is Vesting and Cliff?
 
-#### 🏗️ 架构优势
-- **可升级设计**: OpenZeppelin UUPS 代理模式，支持无缝升级
-- **模块化架构**: 核心代币、释放管理、挖矿分发独立模块
-- **安全优先**: 多重安全机制，防重入、权限控制、冷却期保护
+> **Note:** This section is adapted from our documentation to help you understand the design philosophy of our contracts.
 
-#### ⚡ 高级功能
-- **三级审批系统**: 小额批量处理、中额一级审批、大额多重签名
-- **分层ID管理**: 链上链下数据强关联，防篡改机制
-- **实时统计监控**: 完整的数据分析和风险监控
-- **批量操作优化**: 大幅降低 Gas 费用
+If you are a founder or employee of a startup, you may have heard the terms "vesting" and "cliff". Typically, a cliff is an option within a vesting schedule. A vesting schedule is the process by which you earn ownership of equity or other employer-granted benefits (such as stock options, Restricted Stock Units (RSUs), or other forms of equity-based compensation).
 
-### 🏗️ 系统架构
+Similarly, the concepts of cliff and vesting can be applied to private investments, such as private equity and Token-based private investments in the Crypto field. When investors provide funds to a startup, they usually receive corresponding equity or Tokens. Similar to employee stock options or RSUs, the investors' equity or Tokens may be subject to a vesting schedule that includes a cliff.
+
+Vesting schedules play a crucial role in attracting and retaining talent, as well as aligning the interests of founders, teams, and investors.
+
+### Common Types of Vesting Schedules
+
+Not all vesting schedules are the same. Different types vary in duration, frequency, and conditions. Some common types include:
+
+#### Time-based Vesting
+This refers to employees gradually earning equity or other benefits based on their tenure at the company. Typically, employees need to work for the company for at least one year to exercise any options.
+
+**Example:** A four-year time-based vesting schedule with 25% vesting annually means an employee owns:
+- 25% of the equity after one year
+- 50% after two years
+- 75% after three years
+- 100% after four years
+
+#### Performance-based Vesting
+Also known as Milestone-based vesting. This refers to employees earning equity or other benefits upon completing specific projects or achieving business goals.
+
+**Example:** A performance-based vesting schedule might grant employees 50% equity upon launching a new product, and the remaining 50% when the product's profit reaches $1 million.
+
+#### Cliff Vesting
+This refers to employees fully vesting on a specified date, rather than incrementally over a longer period.
+
+**Example:** A four-year cliff vesting schedule with a one-year cliff means:
+- Employees own no equity before working for a full year
+- They are eligible for 100% of the equity after one year, but it may be credited in installments over the remaining three years
+- If they leave within one year, they lose all rights
+- If they work for more than one year, they retain all rights
+
+### Vesting with Cliff
+
+As introduced above, a cliff is an option within a vesting schedule, and vesting with a cliff is a typical combination, frequently appearing in private investments, especially in the crypto space.
+
+#### Vesting
+Vesting is the process by which employees gradually earn the right to equity or exercise stock options over a period of time. The purpose is to encourage employees to stay with the company long-term and align their interests with those of the company and its shareholders.
+
+#### Cliff
+A Cliff is a period of time, such as one year, during which employees do not earn any equity or equity-based compensation rights. After the Cliff period ends, a large portion or all of the employee's equity compensation will vest at once. The purpose is to ensure employees demonstrate commitment to the company before benefiting from their equity compensation.
+
+**Example:** A company might grant stock options that vest over four years with a one-year Cliff:
+- The employee has no vested options before the end of the first year
+- After the Cliff period, the remaining options may be released monthly or annually over the remaining three years
+
+### Vesting Schedule Illustration
+
+Let's use a diagram to help you quickly understand Vesting with a Cliff. In this example, assume a company grants stock options to an employee that vest over four years with a one-year Cliff.
+
+```
+Year:       Year 1       Year 2       Year 3       Year 4
+           (Cliff)      (Vesting)    (Vesting)    (Vesting)
+Release:      0%          25%          50%          75%         100%
+           ├────────┤    ├────────┤   ├────────┤   ├────────┤
+           No Release    Start        Continue     Finished
+```
+
+As shown, the employee receives no stock options during the first year. From the second year onwards, the employee earns options annually, monthly, or even daily (depending on the contract) until the end of the fourth year.
+
+### Application in Crypto
+
+In Crypto investments, Vesting schedules can be applied to:
+- VC fund investments in crypto-related startups
+- Private Token sales
+- Equity investments in blockchain-based companies
+
+The main goal is to balance the interests of all stakeholders, such as founders, employees, and investors, ensuring a long-term commitment to the project or company.
+
+#### Private Token Sales
+In some cases, private Token sales occur before public Token sales, ICOs, or IEOs, offering Tokens to a limited group of investors at a discounted price. To ensure long-term commitment and prevent rapid speculative trading, Tokens from these private sales may be subject to a vesting schedule that includes a Cliff period.
+
+**Example:** Tokens might unlock gradually over a year with a three-month Cliff:
+- During the Cliff period, investors cannot sell or transfer their Tokens
+- Tokens unlock gradually over the remaining months
+
+## 📋 Project Overview
+
+Chapool Token (CPOT) is a comprehensive token ecosystem designed for enterprise use cases. It features a secure ERC-20 token, a sophisticated three-level approval mining pool, and flexible vesting mechanisms. Built on the OpenZeppelin 5.x upgradeable architecture, it provides a solid foundation for DeFi projects.
+
+### 🎯 Core Features
+
+#### 💰 Token System
+- **Total Supply**: 10 billion Chapool tokens, fixed supply.
+- **Burnable**: Supports token burning to reduce supply.
+- **Upgradeable**: Uses UUPS proxy pattern for future upgrades.
+- **Owner Privileges**: Owner can mint and burn tokens (burnFrom without allowance).
+
+#### 🏗️ System Architecture
 
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   HZToken       │───▶│   Vesting        │───▶│  MiningPool     │
-│ (动态税收+管理)  │    │ (代币分配释放)    │    │ (三级审批挖矿)   │
-│                 │    │                  │    │                 │
-│ • 交易税系统     │    │ • 多种释放策略    │    │ • 小额批量处理   │
-│ • 黑名单管理     │    │ • 时间锁机制     │    │ • 分级审批流程   │
-│ • 暂停控制       │    │ • 受益人管理     │    │ • 分层ID系统    │
+│   CPOToken      │───▶│   Vesting        │───▶│  MiningPool     │
+│ (ERC20 + UUPS)  │    │ (Token Release)  │    │ (Mining Rewards)│
 └─────────────────┘    └──────────────────┘    └─────────────────┘
-        │                       │                       │
-        └───────────────────────┼───────────────────────┘
-                                │
-                    ┌──────────────────┐
-                    │   Constants      │
-                    │ (统一常量管理)    │
-                    │                  │
-                    │ • 系统参数       │
-                    │ • 审批阈值       │
-                    │ • 时间常量       │
-                    └──────────────────┘
 ```
 
-## 🚀 快速开始
+## 🚀 Quick Start
 
-### 环境要求
+### Prerequisites
 
 - **Node.js**: >= 18.0.0
 - **npm**: >= 8.0.0
-- **Git**: 最新版本
+- **Git**: Latest version
 
-### 安装
+### Installation
 
 ```bash
-# 克隆项目
+# Clone the repository
 git clone <your-repo-url>
 cd hz-token-hardhat
 
-# 安装依赖
+# Install dependencies
 npm install
 
-# 复制环境变量模板
+# Copy environment variable template
 cp .env.example .env
 ```
 
-### 配置环境变量
+### Configuration
 
-编辑 `.env` 文件：
+Edit the `.env` file:
 
 ```bash
-# 私钥 (测试用)
 PRIVATE_KEY=your_private_key_here
-
-# RPC URLs
-ETHEREUM_RPC_URL=https://eth-mainnet.g.alchemy.com/v2/YOUR-API-KEY
 BSC_RPC_URL=https://bsc-dataseed1.binance.org/
-
-# API Keys
-ETHERSCAN_API_KEY=your_etherscan_api_key
 BSCSCAN_API_KEY=your_bscscan_api_key
-
-# 部署配置
-ADMIN_ADDRESS=your_admin_address_here
 ```
 
-## 🛠️ 开发工作流
+## 🛠️ Development Workflow
 
-### 编译合约
+### Compile Contracts
 
 ```bash
-# 编译所有合约
 npm run compile
-
-# 清理缓存后重新编译
-npm run clean && npm run compile
 ```
 
-### 运行测试
+### Run Tests
 
 ```bash
-# 运行所有测试
 npm test
-
-# 运行测试并生成覆盖率报告
-npm run coverage
-
-# 生成 Gas 使用报告
-npm run gas-report
 ```
 
-### 代码检查
+### Deployment
 
 ```bash
-# 检查 Solidity 代码规范
-npm run lint
-
-# 自动修复代码规范问题
-npm run lint:fix
+# Deploy to opBNB
+npx hardhat run scripts/deploy-opbnb-cpo-vesting.js --network opbnb
 ```
 
-## 🚀 部署指南
-
-### 本地测试网部署
-
-```bash
-# 启动本地 Hardhat 网络
-npm run node
-
-# 在新终端中部署
-npm run deploy:localhost
-```
-
-### 测试网部署
-
-```bash
-# BSC 测试网
-npm run deploy:testnet
-
-# 以太坊 Sepolia 测试网
-npx hardhat run scripts/deploy.js --network sepolia
-```
-
-### 主网部署
-
-```bash
-# BSC 主网
-npm run deploy:mainnet
-
-# 以太坊主网
-npx hardhat run scripts/deploy.js --network ethereum
-```
-
-## 🔧 合约管理
-
-### 交互式管理
-
-```bash
-# 启动交互式管理界面
-npx hardhat run scripts/manage.js --network localhost
-
-# 或者使用别名
-npm run manage
-```
-
-### 命令行管理
-
-```bash
-# 获取合约统计信息
-npx hardhat run scripts/manage.js --network localhost -- --stats
-
-# 初始化演示数据
-npx hardhat run scripts/manage.js --network localhost -- --demo
-
-# 挖矿演示
-npx hardhat run scripts/manage.js --network localhost -- --mine
-```
-
-### 合约升级
-
-```bash
-# 升级主合约
-npm run upgrade
-
-# 或指定网络
-npx hardhat run scripts/upgrade.js --network bscTestnet
-```
-
-### 合约验证
-
-```bash
-# 验证所有合约
-npm run verify
-
-# 或指定网络
-npx hardhat run scripts/verify.js --network bscTestnet
-```
-
-## 📊 项目结构
-
-```
-hz-token-hardhat/
-├── contracts/                 # 智能合约源码
-│   ├── interfaces/            # 接口定义
-│   │   ├── IHZToken.sol      # HZ代币接口
-│   │   ├── IVesting.sol      # 释放管理接口  
-│   │   └── IMiningPool.sol   # 挖矿池接口
-│   ├── HZToken.sol           # 主代币合约 (动态税收+管理)
-│   ├── Vesting.sol           # 代币释放管理合约
-│   ├── MiningPool.sol        # 挖矿奖励分发合约
-│   └── Constants.sol         # 系统常量定义
-├── docs/                     # 项目文档
-│   ├── 0.Architecture.md     # 系统架构设计
-│   ├── 1.Tokenomics.md      # 代币经济模型
-│   ├── 2.Contracts.md       # 合约技术实现
-│   ├── 3.Deployment.md      # 部署指南
-│   ├── 4.Security.md        # 安全机制
-│   ├── 5.FAQ.md            # 常见问题
-│   ├── 6.Updates.md        # 更新日志
-│   └── README.md           # 文档导航
-├── scripts/                 # 部署和管理脚本
-│   ├── deploy.js           # 主部署脚本
-│   ├── upgrade.js          # 升级脚本
-│   └── verify.js           # 验证脚本
-├── test/                   # 测试文件 (待开发)
-├── deployments/            # 部署记录 (自动生成)
-├── hardhat.config.js       # Hardhat 配置
-├── package.json            # 项目配置
-└── README.md               # 项目说明
-```
-
-## 🧪 测试
-
-### 运行测试套件
-
-```bash
-# 基础测试
-npm test
-
-# 详细输出
-npx hardhat test --verbose
-
-# 运行特定测试文件
-npx hardhat test test/HZToken.test.js
-```
-
-### 测试覆盖率
-
-```bash
-# 生成覆盖率报告
-npm run coverage
-
-# 查看 HTML 报告
-open coverage/index.html
-```
-
-### Gas 分析
-
-```bash
-# 生成 Gas 报告
-REPORT_GAS=true npm test
-
-# 或使用脚本
-npm run gas-report
-```
-
-## 📈 核心合约功能
-
-### HZToken.sol - 主代币合约
-
-#### 基础功能
-- **ERC-20标准**: 完整实现 + 扩展功能
-- **总供应量**: 100亿HZ，初始化时全部铸造给Vesting合约
-- **可升级**: OpenZeppelin UUPS代理模式
-
-#### 动态交易税系统
-- **税收类型**: 买入税、卖出税、转账税、流动性税
-- **动态调整**: 基于交易量、金额、类型、市场活跃度
-- **智能优化**: 大额交易递增税率，小额交易优惠
-- **税收预览**: 用户可提前查看具体税收金额
-
-#### 管理功能
-- **黑名单**: 灵活的风险账户管理
-- **暂停机制**: 紧急情况下停止所有转账
-- **免税地址**: 设置免税白名单
-- **批量操作**: 批量设置AMM池、免税地址等
-
-### Vesting.sol - 代币释放合约
-
-#### 释放策略
-- **线性释放**: 按时间均匀释放
-- **里程碑释放**: 按达成条件分批释放  
-- **悬崖+线性**: 锁仓期+线性释放组合
-
-#### 管理功能
-- **灵活部署**: 支持后续设置代币合约地址
-- **受益人管理**: 支持更改受益人地址
-- **代理释放**: Owner可代为执行释放操作
-- **暂停功能**: 紧急情况下暂停释放
-
-### MiningPool.sol - 挖矿奖励分发
-
-#### 三级审批系统
-- **小额** (< 1万HZ): 链下审核 + 批量处理
-- **中额** (1-10万HZ): 一级审批人审核
-- **大额** (> 10万HZ): 一级+二级审批人双重审核
-
-#### 安全机制
-- **冷却期**: 防止频繁申请攻击
-- **每日限额**: 用户和全局每日提现限制
-- **分层ID**: 链上链下数据强关联
-- **过期清理**: 自动清理过期请求
-
-#### 数据统计
-- **实时监控**: 提现统计、审批状态跟踪
-- **分类统计**: 按审批级别分类的提现数据
-- **余额查询**: Vesting中可释放金额实时查询
-
-## 🔒 安全特性
-
-### 访问控制
-
-- **ADMIN_ROLE**: 系统管理员
-- **DISTRIBUTOR_ROLE**: 分配管理员  
-- **PAUSER_ROLE**: 暂停管理员
-
-### 安全机制
-
-- **重入保护**: `ReentrancyGuard`
-- **暂停机制**: `Pausable`
-- **升级控制**: `UUPSUpgradeable`
-- **权限分离**: `AccessControl`
-
-### 审计建议
-
-- ✅ 使用 OpenZeppelin 经审计的库
-- ✅ 完整的测试覆盖
-- ✅ 自动化安全检查
-- ✅ 合约验证和发布
-
-## 🔄 升级机制
-
-### UUPS 模式
-
-本项目使用 UUPS (Universal Upgradeable Proxy Standard) 模式：
-
-- **优势**: Gas 效率高，更安全
-- **特点**: 升级逻辑在实现合约中
-- **管理**: 通过 OpenZeppelin Upgrades 插件
-
-### 升级流程
-
-1. **验证兼容性**: `upgrades.validateUpgrade()`
-2. **准备升级**: `upgrades.prepareUpgrade()`
-3. **执行升级**: `upgrades.upgradeProxy()`
-4. **验证结果**: 测试新功能
-
-### 升级注意事项
-
-- 存储布局兼容性
-- 初始化函数处理
-- 权限和安全检查
-- 测试网验证
-
-## 🆕 v2.1.0 重大更新
-
-### 🛡️ 安全增强
-- **修复MiningPool安全漏洞**: 小额提现改为链下审核+批量处理，避免恶意攻击
-- **分层ID系统**: 链上链下数据强关联，防止重复申请和数据篡改
-- **冷却期和限额**: 多重防护机制，防止异常提现
-
-### 🎯 功能优化
-- **动态交易税系统**: 智能税率调整，支持税收预览
-- **批量操作**: 大幅降低Gas费用，提升操作效率
-- **实时统计**: 完整的数据监控和分析系统
-- **过期清理**: 自动维护系统，保持最佳性能
-
-### 📋 API 文档
-
-#### HZToken 主要接口
-
-```solidity
-// 动态税收管理
-function setTaxConfig(TaxConfig calldata config) external;
-function previewTax(address from, address to, uint256 amount) external returns (...);
-
-// 批量操作
-function batchSetAMM(address[] calldata pools, bool[] calldata isAMM) external;
-function batchSetTaxExempt(address[] calldata accounts, bool[] calldata exempt) external;
-
-// 黑名单管理
-function addToBlacklist(address account) external;
-function removeFromBlacklist(address account) external;
-```
-
-#### MiningPool 主要接口
-
-```solidity
-// 用户申请提现
-function requestWithdrawal(uint256 amount, string calldata reason, 
-                          uint256 offChainRecordId, uint256 nonce) external returns (uint256);
-
-// 审批流程
-function approveFirstLevel(uint256 requestId) external;
-function approveSecondLevel(uint256 requestId) external;
-
-// 批量小额处理
-function batchSmallTransfer(uint256[] calldata requestIds) external;
-
-// 统计查询
-function getWithdrawalStatistics() external view returns (...);
-```
-
-#### Vesting 主要接口
-
-```solidity
-// 创建释放计划
-function createVestingSchedule(address beneficiary, uint256 start, 
-                              uint256 cliff, uint256 duration, uint256 amount) external;
-
-// 代理释放
-function releaseForBeneficiary(bytes32 scheduleId, uint256 amount) external;
-
-// 设置代币合约
-function setToken(address token_) external;
-```
-
-## 🌐 网络配置
-
-### 支持的网络
-
-- **本地网络**: Hardhat Network
-- **以太坊**: Mainnet, Sepolia
-- **BSC**: Mainnet, Testnet
-- **可扩展**: 添加其他 EVM 兼容链
-
-### 网络参数
-
-```javascript
-// BSC Testnet
-{
-  url: "https://data-seed-prebsc-1-s1.binance.org:8545/",
-  chainId: 97,
-  gasPrice: 10000000000, // 10 gwei
-}
-
-// BSC Mainnet  
-{
-  url: "https://bsc-dataseed1.binance.org/",
-  chainId: 56,
-  gasPrice: 3000000000, // 3 gwei
-}
-```
-
-## 🐛 故障排除
-
-### 常见问题
-
-1. **编译错误**
-   ```bash
-   npm run clean
-   npm run compile
-   ```
-
-2. **网络连接问题**
-   - 检查 RPC URL 配置
-   - 确认网络状态
-   - 验证 API 密钥
-
-3. **Gas 费用不足**
-   - 增加 Gas Limit
-   - 调整 Gas Price
-   - 检查账户余额
-
-4. **升级失败**
-   - 验证存储布局兼容性
-   - 检查升级权限
-   - 确认合约地址
-
-### 调试技巧
-
-```bash
-# 详细错误信息
-npx hardhat test --verbose
-
-# 网络分叉调试
-npx hardhat node --fork https://bsc-dataseed1.binance.org/
-
-# 合约大小检查
-npm run size
-```
-
-## 🤝 贡献指南
-
-### 开发流程
-
-1. Fork 项目
-2. 创建功能分支
-3. 编写代码和测试
-4. 运行测试套件
-5. 提交 Pull Request
-
-### 代码规范
-
-- 遵循 Solidity Style Guide
-- 使用 ESLint 检查 JavaScript
-- 编写完整的测试用例
-- 添加详细的注释
-
-### 提交规范
-
-```bash
-git commit -m "feat: 添加新功能"
-git commit -m "fix: 修复bug"
-git commit -m "docs: 更新文档"
-git commit -m "test: 添加测试"
-```
-
-## 📞 支持
-
-### 获取帮助
-
-- **文档**: 查看 `/docs` 目录
-- **测试**: 运行 `npm test`
-- **示例**: 查看 `/scripts/manage.js`
-- **Issues**: GitHub Issues
-
-### 联系方式
-
-- **GitHub**: [项目地址]
-- **Discord**: [社区链接]
-- **Email**: [支持邮箱]
-
-## 📄 许可证
-
-本项目采用 MIT 许可证。详见 [LICENSE](LICENSE) 文件。
-
-## 🔍 合约信息
-
-### 编译结果
-```
-合约大小统计 (优化后):
-┌─────────────────┬──────────────────┬─────────────────────┐
-│ 合约名称         │ 部署大小 (KiB)    │ 初始化大小 (KiB)     │
-├─────────────────┼──────────────────┼─────────────────────┤
-│ HZToken         │ 13.62           │ 13.83              │
-│ MiningPool      │ 15.75           │ 16.01              │  
-│ Vesting         │ 7.96            │ 8.17               │
-│ Constants       │ 统一常量管理      │ 消除硬编码          │
-└─────────────────┴──────────────────┴─────────────────────┘
-```
-
-### 版本历史
-- **v2.1.0** (当前): 安全增强 + 功能优化 + OpenZeppelin 5.x适配
-- **v2.0.0**: 基础架构 + 三大核心合约
-- **v1.x**: 早期开发版本
-
-### 已实现的安全修复
-✅ **MiningPool安全漏洞修复** - 小额提现攻击防护  
-✅ **分层ID系统** - 链上链下数据强关联  
-✅ **冷却期和每日限额** - 多重安全防护  
-✅ **批量操作优化** - Gas费用大幅降低  
-✅ **动态交易税系统** - 智能税率调整  
-✅ **实时统计监控** - 完整数据分析  
-✅ **Owner权限管理** - 简化权限模型  
-✅ **暂停功能增强** - 紧急保护机制  
-
-## ⚠️ 免责声明
-
-本智能合约系统为企业级DeFi项目技术方案。在生产环境使用前，请：
-
-- **安全审计**: 进行第三方专业安全审计
-- **测试验证**: 在测试网络完整验证所有功能
-- **合规检查**: 确保符合当地法律法规要求
-- **风险评估**: 充分评估技术和市场风险
-
-## 📞 技术支持
-
-- **详细文档**: 查看 `docs/` 目录完整技术文档
-- **代码审查**: 所有代码已通过内部安全审查
-- **持续优化**: 基于最新安全标准持续改进
+## 🔍 Contract Information
+
+### CPOToken.sol
+- **Standard ERC-20**: Implements `ERC20Upgradeable`, `ERC20BurnableUpgradeable`.
+- **Total Supply**: 10 billion CPOT, all minted to the Vesting contract upon initialization.
+- **Upgradeable**: Uses OpenZeppelin UUPS proxy pattern.
+- **Permissions**: Owner has `mint` and privileged `burnFrom` capabilities.
+
+### Vesting.sol
+- **Vesting Management**: Manages token release schedules.
+- **Strategies**: Supports Linear Vesting, Milestone Vesting, and Cliff + Linear combinations.
+- **Beneficiary**: Allows setting and updating beneficiaries.
+
+### MiningPool.sol
+- **Three-Level Approval**: 
+  - Small amount (< 10k CPOT): Off-chain audit + batch processing
+  - Medium amount (10k-100k CPOT): First-level approval
+  - Large amount (> 100k CPOT): Dual approval (First + Second level)
+- **Security**: Implements daily limits, cooldown periods, and ID management.
+
+## 📄 License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
 
 <div align="center">
-  <p><strong>🚀 HZ Token v2.1 - 企业级智能合约解决方案 🚀</strong></p>
-  <p>采用 OpenZeppelin 5.x + 最新安全标准构建</p>
-  <p><em>版本 2.1.0 | 2025年8月4日更新</em></p>
+  <p><strong>🚀 Chapool Token - Enterprise Smart Contract Solution 🚀</strong></p>
+  <p>Built with OpenZeppelin 5.x + Latest Security Standards</p>
+  <p><em>Version 2.1.0 | Updated August 4, 2025</em></p>
 </div>
-
-

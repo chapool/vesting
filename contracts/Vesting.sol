@@ -13,7 +13,7 @@ import "./Constants.sol";
 
 /**
  * @title Vesting
- * @dev Vesting 合约是 HZ Token 生态系统中的核心分配合约
+ * @dev Vesting 合约是 Chapool Token 生态系统中的核心分配合约
  * 负责管理所有代币的时间锁定和释放机制，支持多种释放策略
  */
 contract Vesting is Initializable, OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeable, PausableUpgradeable, Constants, IVesting {

@@ -13,7 +13,7 @@ import "./interfaces/IVesting.sol";
 
 /**
  * @title MiningPool
- * @dev MiningPool 合约管理 HZ Token 的挖矿奖励分发，采用分级授权机制
+ * @dev MiningPool 合约管理 Chapool Token 的挖矿奖励分发，采用分级授权机制
  * 支持不同额度的提币请求通过不同层级的审批流程
  */
 contract MiningPool is Initializable, OwnableUpgradeable, UUPSUpgradeable, ReentrancyGuardUpgradeable, Constants, IMiningPool {

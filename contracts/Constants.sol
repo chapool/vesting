@@ -3,7 +3,7 @@ pragma solidity ^0.8.30;
 
 /**
  * @title Constants
- * @dev HZ Token 生态系统的常量定义抽象合约
+ * @dev Chapool Token 生态系统的常量定义抽象合约
  * 集中管理所有系统级常量，避免硬编码和重复定义
  * 
  * 使用方式：
