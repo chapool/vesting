@@ -1,0 +1,17 @@
+{
+  "network": "opbnb",
+  "chainId": 204,
+  "deployer": "0xb5eb06fAAaaB2964b5e8C1318eB8dB18F8f8F38D",
+  "timestamp": "2025-12-10T09:45:58.804Z",
+  "blockNumber": 93761794,
+  "token": {
+    "name": "Chapool Token",
+    "symbol": "CPOT",
+    "proxy": "0x549d576069099F524A42ABa0b7CcB1b9b148B505",
+    "implementation": "0xEcd8E2a927A9Fb9F37f9fa64Fe0D1922368Ed73A"
+  },
+  "vesting": {
+    "proxy": "0x084e367B171101432c1F862f28A1792e5bA374b8",
+    "implementation": "0x9732deDA98b373807b152b6f4140a9F30CAaCDe5"
+  }
+}

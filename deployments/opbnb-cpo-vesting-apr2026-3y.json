@@ -1,0 +1,18 @@
+{
+  "network": "opbnb",
+  "start": 1775001600,
+  "duration": 94608000,
+  "slicePeriodSeconds": 86400,
+  "cliff": 0,
+  "revocable": true,
+  "allocations": [
+    {
+      "beneficiary": "0xb1Bbdc659a8265D22F7fD478BD4CF41a9Dff3e9e",
+      "amount": "4750000",
+      "category": 3,
+      "scheduleId": "0x5f37e64519e253faebea0033021a5507266aa4a3515a52be30371fec2f11986d",
+      "txHash": "0xffe7093d00169ed5190c5b6c754308764e8df0d6d92d0addaafd04a0586fc6be"
+    }
+  ],
+  "vesting": "0x084e367B171101432c1F862f28A1792e5bA374b8"
+}

@@ -145,5 +145,4 @@ ehthumbs.db
 Thumbs.db
 
 # Deployment files
-deployments/
 .openzeppelin/

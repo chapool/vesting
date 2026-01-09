@@ -1,0 +1,17 @@
+{
+  "network": "opbnb",
+  "beneficiary": "0xc5cCc3c5e4bbb9519Deaf7a8afA29522DA49E33D",
+  "scheduleId": "0xa7719595191eaf0d83752c41337f9db40ce3b2206f2126ed471cbae98de65818",
+  "txHash": "0xad97d1368e2e74992d20bae79c9c556b9a70a9642e4e79621840738ccb33be27",
+  "params": {
+    "amount": "10000000000000000000",
+    "start": 1765360332,
+    "cliff": 0,
+    "duration": 2592000,
+    "slicePeriodSeconds": 1,
+    "revocable": true,
+    "category": "ECOSYSTEM",
+    "vestingType": "LINEAR"
+  },
+  "vestingAddress": "0x084e367B171101432c1F862f28A1792e5bA374b8"
+}

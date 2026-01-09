@@ -1,0 +1,23 @@
+{
+  "network": "opbnb",
+  "beneficiary": "0xECBDf0F2a059392c8AB71d1659B2370Cb2eb6c7B",
+  "timestamp": "2025-12-20T01:44:18.093Z",
+  "summary": {
+    "total": 1,
+    "revoked": 1,
+    "skipped": 0,
+    "failed": 0
+  },
+  "results": [
+    {
+      "index": 0,
+      "scheduleId": "0xcda14bac4c51acbb5476a375a55aee9a71216f0120a531151ed851dccb16140e",
+      "status": "revoked",
+      "txHash": "0x3d477c2aad3de0fd637dc62a4b164057532c7a497b479f4f1f60dc41fd17878d",
+      "amountTotal": "38000000.0",
+      "released": "0.0",
+      "releasableBeforeRevoke": "0.0"
+    }
+  ],
+  "vesting": "0x084e367B171101432c1F862f28A1792e5bA374b8"
+}
