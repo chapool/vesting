@@ -6,7 +6,7 @@ require("solidity-coverage");
 require("dotenv").config();
 // Attempt to load opBNB-specific env if present (non-fatal if missing)
 try {
-  require("dotenv").config({ path: ".env.opBNB", override: false });
+  require("dotenv").config({ path: ".env.opBNB", override: true });
 } catch (e) {
   // ignore if file not present
 }
@@ -43,7 +43,6 @@ module.exports = {
         mnemonic: process.env.MNEMONIC || "test test test test test test test test test test test junk",
       },
     },
-    // opBNB Mainnet
     opbnb: {
       url: process.env.OPBNB_RPC_URL || "",
       chainId: 204,
@@ -61,58 +60,22 @@ module.exports = {
       gas: "auto",
       timeout: Number(process.env.NETWORK_TIMEOUT || 60000),
     },
-    // HashKey Chain Testnet
-    hashkeyTestnet: {
-      url: "https://testnet.hsk.xyz",
-      chainId: 133,
-      accounts: process.env.TESTNET_PRIVATE_KEY ? [process.env.TESTNET_PRIVATE_KEY] : [],
-      gasPrice: "auto",
-      gas: "auto",
-      timeout: 60000,
-    },
-    // HashKey Chain Mainnet
-    hashkeyMainnet: {
-      url: "https://mainnet.hsk.xyz",
-      chainId: 177,
-      accounts: process.env.MAINNET_PRIVATE_KEY 
-        ? [process.env.MAINNET_PRIVATE_KEY] 
-        : process.env.MNEMONIC 
-        ? { 
-            mnemonic: process.env.MNEMONIC,
-            path: "m/44'/60'/0'/0",
-            initialIndex: 9, // 从索引9开始（你的钱包地址）
-            count: 1
-          }
-        : [],
-      gasPrice: "auto",
-      gas: "auto",
-      timeout: 60000,
-    },
   },
   etherscan: {
     apiKey: {
-      // HashKey Chain的验证暂时不需要API Key
-      // 如果将来HashKey Chain支持API验证，可以在这里添加
-      hashkeyTestnet: "no-api-key-needed",
-      hashkeyMainnet: "no-api-key-needed",
+      opbnb: process.env.ETHERSCAN_API_KEY || process.env.NODEREAL_API_KEY || process.env.BSCSCAN_API_KEY,
     },
     customChains: [
       {
-        network: "hashkeyTestnet",
-        chainId: 133,
+        network: "opbnb",
+        chainId: 204,
         urls: {
-          apiURL: "https://testnet-explorer.hsk.xyz/api",
-          browserURL: "https://testnet-explorer.hsk.xyz"
-        }
+          apiURL: process.env.NODEREAL_API_KEY
+            ? `https://open-platform.nodereal.io/${process.env.NODEREAL_API_KEY}/op-bnb-mainnet/contract/`
+            : "https://api.etherscan.io/v2/api?chainid=204",
+          browserURL: "https://opbnb.bscscan.com",
+        },
       },
-      {
-        network: "hashkeyMainnet", 
-        chainId: 177,
-        urls: {
-          apiURL: "https://explorer.hsk.xyz/api",
-          browserURL: "https://explorer.hsk.xyz"
-        }
-      }
     ]
   },
   gasReporter: {
@@ -120,7 +83,7 @@ module.exports = {
     currency: "USD",
     gasPrice: 20,
     coinmarketcap: process.env.COINMARKETCAP_API_KEY,
-    token: "HSK", // HashKey Chain native token
+    token: "BNB",
   },
   contractSizer: {
     alphaSort: true,
